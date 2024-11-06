@@ -1,0 +1,33 @@
+name: social
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - ffmpeg
+  - h5py
+  - ipykernel
+  - joblib
+  - matplotlib
+  - numba
+  - numpy
+  - opencv
+  - pandas
+  - pip
+  - pynndescent
+  - pytables
+  - python=3.12
+  - pyyaml
+  - scipy
+  - scikit-image
+  - scikit-learn
+  - scikit-posthocs
+  - seaborn
+  - tqdm
+  - umap-learn
+  - pip:
+    - colorcet
+    - decord
+    - flyplotlib
+    - KDEpy
+    - mplex
+    - utils2p
