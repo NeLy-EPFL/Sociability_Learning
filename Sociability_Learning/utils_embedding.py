@@ -33,7 +33,8 @@ def c2xy(obj):
         return pd.DataFrame(data, df.index, columns)
     else:
         return np.stack((obj.real, obj.imag), axis=-1)
-    
+
+
 def xy2c(obj, coord_level=-1):
     """Convert x, y coordinates in a dataframe to complex numbers.
 
@@ -64,6 +65,7 @@ def xy2c(obj, coord_level=-1):
 
     return obj
 
+
 def get_bbox(a):
     from itertools import combinations
 
@@ -77,6 +79,7 @@ def get_bbox(a):
             for i in combinations(reversed(range(a.ndim)), a.ndim - 1)
         ]
     )
+
 
 def get_kde(points, n_bins=512, bound=None, bw=0.1, border_rel=0.1):
     """Estimate pdf using FFT KDE.

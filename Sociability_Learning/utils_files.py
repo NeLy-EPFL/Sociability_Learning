@@ -90,9 +90,8 @@ class Experiment:
 def get_cached_data_dir():
     return Path(__file__).parent.parent / "data"
 
-def read_data(
-    h5_path, n_frames_init=80, interpolate=True, flip=False, **kwargs
-):
+
+def read_data(h5_path, n_frames_init=80, interpolate=True, flip=False, **kwargs):
     """Load tracking data from h5 file to dataframe.
 
     Parameters
@@ -136,18 +135,26 @@ def read_data(
 
     return df
 
-def get_10min_control_dataset(base_data_dir, cached_data_path=None):
+
+def get_10min_control_dataset(base_data_dir=None, cached_data_path=None):
     from datetime import datetime
     from Sociability_Learning.utils_embedding import xy2c
 
-    base_data_dir = Path(base_data_dir)
+    if base_data_dir is None:
+        base_data_dir = Path(
+            "/mnt/upramdya_files/LOBATO_RIOS_Victor/"
+            "Experimental_data/Optogenetics/Optobot/"
+        )
+    else:
+        base_data_dir = Path(base_data_dir)
 
     if cached_data_path is None:
         cached_data_path = get_cached_data_dir() / "10min_control.h5"
-    
+
     cached_data_path = Path(cached_data_path)
 
     if not cached_data_path.exists():
+
         def parse_arena_dir(data_path: Path):
             mapping = {
                 "grouped": "g",
@@ -180,7 +187,7 @@ def get_10min_control_dataset(base_data_dir, cached_data_path=None):
             return df[
                 ["condition", "datetime", "arena", "start", "stop", "ind_min_dist"]
             ]
-    
+
         cached_data_path.parent.mkdir(exist_ok=True, parents=True)
 
         arena_dirs = [

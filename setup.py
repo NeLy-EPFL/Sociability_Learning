@@ -36,5 +36,5 @@ setuptools.setup(
         "tqdm",
         "umap-learn",
         "utils2p",
-    ]
+    ],
 )
