@@ -8,6 +8,7 @@ dependencies:
   - ipykernel
   - joblib
   - matplotlib
+  - nbconvert
   - numba
   - numpy
   - opencv

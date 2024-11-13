@@ -5,7 +5,10 @@ import cv2
 import numpy as np
 from decord import VideoReader
 from imageio import get_writer
-from Sociability_Learning.utils_files import get_learning_dark_dataset
+from Sociability_Learning.utils_files import (
+    get_cached_data_dir,
+    get_learning_dark_dataset,
+)
 from Sociability_Learning.utils_videos import draw_text
 from tqdm import tqdm
 
@@ -22,10 +25,11 @@ n_seconds = 4
 fps = 80
 n_frames = n_seconds * fps
 n_videos_preview = n_rows_preview * n_cols_preview
-data_dir = Path("../data/learning-dark")
+data_dir = get_cached_data_dir() / "learning-dark"
 data_dir.mkdir(exist_ok=True, parents=True)
-save_path = Path("../outputs/videos/vid6_learning_dark.mp4")
-save_path.parent.mkdir(exist_ok=True, parents=True)
+save_dir = Path("../outputs/videos")
+save_name = "Video6-LearningProgression2hrsDark"
+save_dir.mkdir(exist_ok=True, parents=True)
 df = get_learning_dark_dataset()
 groupby = (
     df["clips"]
@@ -66,6 +70,7 @@ for key, df_ in tqdm(groupby, total=len(groupby)):
             writer.append_data(frame)
 
     cap.release()
+
 s = {}
 
 s[
@@ -129,7 +134,7 @@ im_title = draw_text(
     font_size=28,
 )
 all_frames = np.concatenate((all_frames["i"], all_frames["g"]), axis=-1)
-with get_writer(save_path, fps=80) as writer:
+with get_writer((save_dir / save_name).with_suffix(".mp4"), fps=80) as writer:
     for j, im in enumerate(all_frames):
         im[hn - 1 : hn + 1] = 128
         im[:, wn - 1 : wn + 1] = 128

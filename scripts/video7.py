@@ -1,12 +1,13 @@
 from datetime import datetime
 from pathlib import Path
+
+import cv2
 import numpy as np
-from imageio.v2 import imread, get_writer
-from tqdm import tqdm
+from decord import VideoReader
+from imageio.v2 import get_writer, imread
 from Sociability_Learning.utils_files import get_learning_mesh_dataset
 from Sociability_Learning.utils_videos import draw_text
-from decord import VideoReader
-import cv2
+from tqdm import tqdm
 
 
 def get_t_for_slowed_video(
@@ -55,8 +56,8 @@ def get_nearest_indices(t_ref, t_que):
         Index of the closest element in t_ref for each element in t_que.
     """
 
-    from sklearn.neighbors import KDTree
     import numpy as np
+    from sklearn.neighbors import KDTree
 
     t_ref = np.asarray(t_ref).reshape(-1, 1)
     t_que = np.asarray(t_que).reshape(-1, 1)
@@ -75,7 +76,8 @@ def format_time(n_secs):
     return t_str
 
 
-save_path = Path("../outputs/videos/vid7_learning_mesh.mp4")
+save_dir = Path("../outputs/videos/")
+save_name = "Video7-MeshLearning"
 fps_in = 80
 fps_out = 80
 n_seconds_before = 7.5
@@ -158,7 +160,7 @@ def iter_frames(cond):
         yield im
 
 
-with get_writer(save_path, fps=fps_out) as writer:
+with get_writer((save_dir / save_name).with_suffix(".mp4"), fps=fps_out) as writer:
     iter_i = iter_frames("i")
     for im_i in iter_i:
         writer.append_data(im_i)

@@ -12,14 +12,18 @@ from matplotlib.transforms import Affine2D
 from mplex import Grid
 from numpy.lib.stride_tricks import sliding_window_view as swv
 from Sociability_Learning.utils_embedding import c2xy
-from Sociability_Learning.utils_files import get_10min_control_dataset
+from Sociability_Learning.utils_files import (
+    get_10min_control_dataset,
+    get_cached_data_dir,
+)
 from tqdm import trange
 
 save_dir = Path("../outputs/videos")
-cache_video_path = Path("../data/10min_control_events.mp4")
+save_name = "Video3-UnsupervisedClustering"
+cache_video_path = get_cached_data_dir() / "10min_control_events.mp4"
 save_dir.mkdir(exist_ok=True, parents=True)
 cache_video_path.parent.mkdir(exist_ok=True, parents=True)
-data_path = Path("../data/dist_vel_angle_20_clusters.npz")
+data_path = get_cached_data_dir() / "dist_vel_angle_20_clusters.npz"
 assert data_path.exists(), "Run embedding.ipynb first"
 
 df = get_10min_control_dataset()
@@ -389,7 +393,7 @@ run(
         "files.txt",
         "-c",
         "copy",
-        (save_dir / "vid3.mp4").as_posix(),
+        (save_dir / save_name).with_suffix(".mp4").as_posix(),
     ]
 )
 

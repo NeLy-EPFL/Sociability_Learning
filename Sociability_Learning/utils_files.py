@@ -88,8 +88,9 @@ class Experiment:
         self.gen_name = "_".join([self.gen1, new_gen2])
 
 def get_cached_data_dir():
-    return Path(__file__).parent.parent / "data"
-
+    d = Path(__file__).parent.parent / "outputs" / "data"
+    d.mkdir(exist_ok=True, parents=True)
+    return d
 
 def read_data(h5_path, n_frames_init=80, interpolate=True, flip=False, **kwargs):
     """Load tracking data from h5 file to dataframe.

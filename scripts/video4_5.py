@@ -12,15 +12,26 @@ from numpy.lib.stride_tricks import sliding_window_view as swv
 from Sociability_Learning.utils_embedding import c2xy
 from Sociability_Learning.utils_files import get_10min_control_dataset
 
-vid_nums = {"distancing": 4, "standstill": 5}
+save_names = {
+    "distancing": "Video4-DistancingEfficiencyMetric",
+    "standstill": "Video5-ImmobileFreezingMetric",
+}
 titles = {
     "distancing": "Example distancing events (moving after closest distance)\n"
     "above and below distancing efficiency threshold ({:.2f})",
     "standstill": "Example standstill events (stationary after closest distance)\n"
     "above and below immobile freezing threshold ({:.2f})",
 }
+clip_ids = {
+    "distancing": [1179, 309, 229, 228, 912, 1078, 492, 15],
+    "standstill": [70, 150, 1264, 36, 776, 513, 507, 691],
+}
+flip = {
+    "distancing": [False, True, True, True, False, False, False, False],
+    "standstill": [False, True, False, True, False, False, False, True],
+}
 
-outputs_dir = Path("../outputs/")
+save_dir = Path("../outputs/videos")
 size = 240
 fps_in = 80
 fps_out = 40
@@ -100,16 +111,7 @@ def init_fig(clip_data, event_type, lim=160, axsize=240):
     return g, elems, time_text, circ
 
 
-clip_ids = {
-    "distancing": [1179, 309, 229, 228, 912, 1078, 492, 15],
-    "standstill": [70, 150, 1264, 36, 776, 513, 507, 691],
-}
-flip = {
-    "distancing": [False, True, True, True, False, False, False, False],
-    "standstill": [False, True, False, True, False, False, False, True],
-}
 for event_type in ["distancing", "standstill"]:
-
     if event_type == "distancing":
         t0 = -1 * fps_in
         t1 = 3 * fps_in + 1
@@ -147,8 +149,8 @@ for event_type in ["distancing", "standstill"]:
             )
         )
 
-    filename = outputs_dir / f"videos/vid{vid_nums[event_type]}_{event_type}.mp4"
-    (outputs_dir / "videos").mkdir(parents=True, exist_ok=True)
+    filename = (save_dir / save_names[event_type]).with_suffix(".mp4")
+    save_dir.mkdir(exist_ok=True, parents=True)
     g, elems, time_text, circ = init_fig(clip_data, event_type)
     with get_writer(filename, fps=fps_out) as writer:
         for i_t, t in enumerate(range(t0, t1)):
