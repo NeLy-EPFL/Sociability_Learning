@@ -88,11 +88,11 @@ class Experiment:
         self.gen_name = "_".join([self.gen1, new_gen2])
 
 def get_cached_data_dir():
-    return Path(__file__).parent.parent / "data"
+    d = Path(__file__).parent.parent / "outputs" / "data"
+    d.mkdir(exist_ok=True, parents=True)
+    return d
 
-def read_data(
-    h5_path, n_frames_init=80, interpolate=True, flip=False, **kwargs
-):
+def read_data(h5_path, n_frames_init=80, interpolate=True, flip=False, **kwargs):
     """Load tracking data from h5 file to dataframe.
 
     Parameters
@@ -136,18 +136,26 @@ def read_data(
 
     return df
 
-def get_10min_control_dataset(base_data_dir, cached_data_path=None):
+
+def get_10min_control_dataset(base_data_dir=None, cached_data_path=None):
     from datetime import datetime
     from Sociability_Learning.utils_embedding import xy2c
 
-    base_data_dir = Path(base_data_dir)
+    if base_data_dir is None:
+        base_data_dir = Path(
+            "/mnt/upramdya_files/LOBATO_RIOS_Victor/"
+            "Experimental_data/Optogenetics/Optobot/"
+        )
+    else:
+        base_data_dir = Path(base_data_dir)
 
     if cached_data_path is None:
         cached_data_path = get_cached_data_dir() / "10min_control.h5"
-    
+
     cached_data_path = Path(cached_data_path)
 
     if not cached_data_path.exists():
+
         def parse_arena_dir(data_path: Path):
             mapping = {
                 "grouped": "g",
@@ -180,7 +188,7 @@ def get_10min_control_dataset(base_data_dir, cached_data_path=None):
             return df[
                 ["condition", "datetime", "arena", "start", "stop", "ind_min_dist"]
             ]
-    
+
         cached_data_path.parent.mkdir(exist_ok=True, parents=True)
 
         arena_dirs = [
@@ -203,6 +211,236 @@ def get_10min_control_dataset(base_data_dir, cached_data_path=None):
             df["data"][row.datetime, row.arena] = xy2c(read_data(h5_path))
 
         df["data"] = pd.concat(df["data"], names=["datetime", "arena"])
+
+        df["arenas"].set_index(["datetime", "arena"], inplace=True)
+        df["clips"].set_index(["datetime", "arena"], inplace=True)
+        df["clips"]["type"] = ""
+        df["clips"]["auc"] = np.nan
+        df["clips"]["below_threshold"] = False
+        df["clips"]["i"] = np.arange(len(df["clips"]))
+
+        thresholds = dict()
+
+        for arena in df["arenas"].itertuples():
+            arena_dir = Path(arena.path)
+            paths = dict(
+                distancing=arena_dir / "distancig_events.pkl",
+                standstill=arena_dir / "standstill_events.pkl",
+            )
+            df_clips = df["clips"].loc[arena.Index].set_index("ind_min_dist")
+
+            for k, p in paths.items():
+                if not p.exists():
+                    continue
+
+                df_ = pd.read_pickle(p)
+
+                if not len(df_):
+                    continue
+
+                ind_min_dist = df_["Start"].values + df_["Ind min dist"].values
+                index = df_clips.loc[ind_min_dist, "i"].values
+                thr = df_["Control threshold"].unique().item()
+                if k not in thresholds:
+                    thresholds[k] = thr
+                else:
+                    assert thresholds[k] == thr
+
+                j = (df["clips"].columns == "type").argmax()
+                df["clips"].iloc[index, j] = k
+                j = (df["clips"].columns == "auc").argmax()
+                df["clips"].iloc[index, j] = df_["AUC"].values
+                j = (df["clips"].columns == "below_threshold").argmax()
+                df["clips"].iloc[index, j] = df_["AUC"].values < thr
+
+        df["clips"].drop(columns=["i"], inplace=True)
+        df["threshold"] = pd.Series(thresholds)
+
+        with pd.HDFStore(cached_data_path, "w") as store:
+            for k, v in df.items():
+                store[k] = v
+
+    with pd.HDFStore(cached_data_path, "r") as store:
+        df = {k.lstrip("/"): store[k] for k in store.keys()}
+
+    return df
+
+
+def get_learning_dark_dataset(base_data_dir=None, cached_data_path=None):
+    from datetime import datetime
+
+    if base_data_dir is None:
+        base_data_dir = Path(
+            "/mnt/upramdya_files/LOBATO_RIOS_Victor/"
+            "Experimental_data/Optogenetics/Optobot/"
+        )
+    else:
+        base_data_dir = Path(base_data_dir)
+    
+    if cached_data_path is None:
+        cached_data_path = get_cached_data_dir() / "learning_dark.h5"
+
+    if not cached_data_path.exists():
+
+        def parse_arena_dir(data_path: Path):
+            mapping = {
+                "gro-gro": "g",
+                "iso-iso": "i",
+            }
+            parts = data_path.relative_to(base_data_dir).parts
+
+            return {
+                "datetime": datetime.strptime(parts[2] + parts[3][:6], "%y%m%d%H%M%S"),
+                "arena": int(parts[-1][-1]),
+                "condition": mapping[parts[1]],
+                "path": data_path.as_posix(),
+            }
+
+        def get_df(row):
+            df = pd.read_pickle(Path(row.path) / "proximity_events.pkl")
+            df = df[["Start", "Stop", "Ind min dist"]]
+            df.drop_duplicates(inplace=True)
+            df.columns = ["start", "stop", "rel_ind_min_dist"]
+            df["start"] = df["start"].astype(int)
+            df["stop"] = df["stop"].astype(int)
+            df["condition"] = row.condition
+            df["datetime"] = row.datetime
+            df["arena"] = row.arena
+            df["ind_min_dist"] = np.array(df["start"] + df["rel_ind_min_dist"]).astype(
+                int
+            )
+            return df[
+                ["condition", "datetime", "arena", "start", "stop", "ind_min_dist"]
+            ]
+
+        arena_dirs = [
+            i.parent
+            for i in sorted(
+                base_data_dir.glob("learning-dark/**/arena*/proximity_events.pkl")
+            )
+        ]
+
+        df = {}
+        df["arenas"] = pd.DataFrame([parse_arena_dir(i) for i in arena_dirs])
+        df["arenas"].sort_values(["datetime", "arena"], inplace=True)
+        df["clips"] = pd.concat(
+            [get_df(i) for i in df["arenas"].itertuples()], ignore_index=True
+        )
+
+        df["arenas"].set_index(["datetime", "arena"], inplace=True)
+        df["clips"].set_index(["datetime", "arena"], inplace=True)
+        df["clips"]["type"] = ""
+        df["clips"]["auc"] = np.nan
+        df["clips"]["below_threshold"] = False
+        df["clips"]["i"] = np.arange(len(df["clips"]))
+
+        thresholds = dict()
+
+        for arena in df["arenas"].itertuples():
+            arena_dir = Path(arena.path)
+            paths = dict(
+                distancing=arena_dir / "distancig_events.pkl",
+                standstill=arena_dir / "standstill_events.pkl",
+            )
+            df_clips = df["clips"].loc[arena.Index].set_index("ind_min_dist")
+
+            for k, p in paths.items():
+                if not p.exists():
+                    continue
+
+                df_ = pd.read_pickle(p)
+
+                if not len(df_):
+                    continue
+
+                ind_min_dist = df_["Start"].values + df_["Ind min dist"].values
+                index = df_clips.loc[ind_min_dist, "i"].values
+                thr = df_["Control threshold"].unique().item()
+                if k not in thresholds:
+                    thresholds[k] = thr
+                else:
+                    assert thresholds[k] == thr
+
+                j = (df["clips"].columns == "type").argmax()
+                df["clips"].iloc[index, j] = k
+                j = (df["clips"].columns == "auc").argmax()
+                df["clips"].iloc[index, j] = df_["AUC"].values
+                j = (df["clips"].columns == "below_threshold").argmax()
+                df["clips"].iloc[index, j] = df_["AUC"].values < thr
+
+        df["clips"].drop(columns=["i"], inplace=True)
+        df["threshold"] = pd.Series(thresholds)
+
+        with pd.HDFStore(cached_data_path, "w") as store:
+            for k, v in df.items():
+                store[k] = v
+
+    with pd.HDFStore(cached_data_path, "r") as store:
+        df = {k.lstrip("/"): store[k] for k in store.keys()}
+
+    return df
+
+
+def get_learning_mesh_dataset(base_data_dir=None, cached_data_path=None):
+    from datetime import datetime
+
+    if base_data_dir is None:
+        base_data_dir = Path(
+            "/mnt/upramdya_files/LOBATO_RIOS_Victor/"
+            "Experimental_data/Optogenetics/Optobot/"
+        )
+    else:
+        base_data_dir = Path(base_data_dir)
+
+    if cached_data_path is None:
+        cached_data_path = get_cached_data_dir() / "learning_mesh.h5"
+
+    if not cached_data_path.exists():
+
+        def parse_arena_dir(data_path: Path):
+            mapping = {
+                "gro-gro": "g",
+                "iso-iso": "i",
+            }
+            parts = data_path.relative_to(base_data_dir).parts
+
+            return {
+                "datetime": datetime.strptime(parts[2] + parts[3][:6], "%y%m%d%H%M%S"),
+                "arena": int(parts[-1][-1]),
+                "condition": mapping[parts[1]],
+                "path": data_path.as_posix(),
+            }
+
+        def get_df(row):
+            df = pd.read_pickle(Path(row.path) / "proximity_events.pkl")
+            df = df[["Start", "Stop", "Ind min dist"]]
+            df.drop_duplicates(inplace=True)
+            df.columns = ["start", "stop", "rel_ind_min_dist"]
+            df["start"] = df["start"].astype(int)
+            df["stop"] = df["stop"].astype(int)
+            df["condition"] = row.condition
+            df["datetime"] = row.datetime
+            df["arena"] = row.arena
+            df["ind_min_dist"] = np.array(df["start"] + df["rel_ind_min_dist"]).astype(
+                int
+            )
+            return df[
+                ["condition", "datetime", "arena", "start", "stop", "ind_min_dist"]
+            ]
+
+        arena_dirs = [
+            i.parent
+            for i in sorted(
+                base_data_dir.glob("learning-mesh/**/arena*/proximity_events.pkl")
+            )
+        ]
+
+        df = {}
+        df["arenas"] = pd.DataFrame([parse_arena_dir(i) for i in arena_dirs])
+        df["arenas"].sort_values(["datetime", "arena"], inplace=True)
+        df["clips"] = pd.concat(
+            [get_df(i) for i in df["arenas"].itertuples()], ignore_index=True
+        )
 
         df["arenas"].set_index(["datetime", "arena"], inplace=True)
         df["clips"].set_index(["datetime", "arena"], inplace=True)
