@@ -31,4 +31,5 @@ dependencies:
     - flyplotlib
     - KDEpy
     - mplex
-    - utils2p
+    - imageio[ffmpeg]
+    - git+https://github.com/NeLy-EPFL/utils2p.git@master#egg=utils2p
