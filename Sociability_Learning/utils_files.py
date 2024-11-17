@@ -194,7 +194,7 @@ def get_10min_control_dataset(base_data_dir=None, cached_data_path=None):
         arena_dirs = [
             i.parent
             for i in sorted(
-                base_data_dir.glob("*-control/**/arena*/proximity_events.pkl")
+                base_data_dir.glob("control/*-*/*/*/*/proximity_events.pkl")
             )
         ]
 

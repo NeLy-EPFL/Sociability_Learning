@@ -55,7 +55,7 @@ def get_video_path(datetime, arena, optobot_dir: Path):
     hms = datetime.strftime("%H%M%S")
     return next(
         optobot_dir.glob(
-            f"*-control/*-*/{ymd}/{hms}_s0a0_p0-0/arena{arena}/arena{arena}_*-exp_p0-0_80fps.mp4"
+            f"control/*-*/{ymd}/{hms}_s0a0_p0-0/arena{arena}/arena{arena}_*-exp_p0-0_80fps.mp4"
         )
     )
 

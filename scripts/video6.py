@@ -113,8 +113,8 @@ for c, sc in s.items():
         np.concatenate(all_frames_c.reshape((2, 2, -1, hn, wn)), axis=2), axis=2
     )
 titles = {
-    "i": "Single housed flies in dark",
-    "g": "Group housed flies in dark",
+    "i": "Single-housed flies in dark",
+    "g": "Group-housed flies in dark",
 }
 
 im_title = draw_text(

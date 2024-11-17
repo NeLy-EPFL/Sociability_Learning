@@ -174,7 +174,7 @@ def iter_l(k):
 
     text_kw = dict(transform="a", size=5, va="t")
 
-    for s, y, c in zip(["Single housed", "Group housed"], [0, -6], ["C0", "C1"]):
+    for s, y, c in zip(["Single-housed", "Group-housed"], [0, -6], ["C0", "C1"]):
         ax.add_text(1, 1, s, c=c, ha="r", pad=(-1, y), **text_kw)
 
     ax = g[2:, 1].make_ax(sharex=True, behind=False)

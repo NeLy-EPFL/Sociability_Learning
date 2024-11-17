@@ -9,6 +9,17 @@ from Sociability_Learning.utils_files import get_learning_mesh_dataset
 from Sociability_Learning.utils_videos import draw_text
 from tqdm import tqdm
 
+video_path = "/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/learning-mesh/iso-iso/240724/202942_s0a0_p0-0/learning-mesh_iso-iso_p0-0_80fps.mp4"
+
+
+def format_time(n_secs):
+    if n_secs < 0:
+        return format_time(-n_secs).replace("+", "−")
+
+    dt = datetime.fromtimestamp(n_secs)
+    t_str = dt.strftime("%M:%S.%f")[:-4]
+    return t_str
+
 
 def get_t_for_slowed_video(
     fps_in,
@@ -67,46 +78,26 @@ def get_nearest_indices(t_ref, t_que):
     return idx
 
 
-def format_time(n_secs):
-    if n_secs < 0:
-        return format_time(-n_secs).replace("+", "−")
-
-    dt = datetime.fromtimestamp(n_secs)
-    t_str = dt.strftime("+%M:%S.%f")[:-4]
-    return t_str
-
-
 save_dir = Path("../outputs/videos/")
 save_name = "Video7-MeshLearning"
 fps_in = 80
 fps_out = 80
-n_seconds_before = 7.5
-n_seconds_after = 30
+
+n_seconds = 30
 n_frames = 864000
+speed = 1
+t_in = np.arange(n_frames) / fps_in
+n_seconds_before = 0
+n_seconds_after = 30
 speed_slow = 1
 speed_fast = 8
-t_in = np.arange(n_frames) / fps_in
 
-opening_gates = {
-    "g": 574723,
-    "i": 579670,
-}
-df = get_learning_mesh_dataset()
-arenas = {cond: df_.index[-1] for cond, df_ in df["arenas"].groupby("condition")}
-video_paths = {}
 
-for k, v in arenas.items():
-    paths = [
-        i
-        for i in Path(df["arenas"].loc[v, "path"]).parent.glob("*.mp4")
-        if "interactions" not in i.stem
-    ]
-    assert len(paths) == 1
-    video_paths[k] = paths[0].as_posix()
+open_gate_frame = 0
 
 
 def iter_frames(cond):
-    i0 = opening_gates[cond]
+    i0 = open_gate_frame
     ia = round(i0 - n_seconds_before * fps_in * speed_fast)
     ib = round(i0 + n_seconds_after * fps_in * speed_slow)
 
@@ -122,7 +113,7 @@ def iter_frames(cond):
     )
     idx = get_nearest_indices(t_in, t_out)
     t_out = t_out - t_in[i0]
-    mp4_path = video_paths[cond]
+    mp4_path = video_path
 
     vr = VideoReader(mp4_path)
     h, w = vr[0].asnumpy().shape[:2]
@@ -130,7 +121,7 @@ def iter_frames(cond):
     h -= 7
     h = h // 2
     w = w // 2
-    title = "Single housed" if cond == "i" else "Group housed"
+    title = "Single-housed" if cond == "i" else "Group-housed"
     im_title = draw_text(np.zeros((28, w), np.uint8), title, w // 2, 14, "mm")
 
     im_ff = imread("../data/fast_forward.png")[..., 3]
@@ -148,9 +139,9 @@ def iter_frames(cond):
 
         if cond == "i":
             if s_i:
-                t_str = format_time(ti) + f" ({speed_slow}×)"
+                t_str = format_time(ti)  # + f" ({speed_slow}×)"
             else:
-                t_str = format_time(ti) + f" ({speed_fast}×)"
+                t_str = format_time(ti)  # + f" ({speed_fast}×)"
 
             x = 4
             y = im.shape[0] - 4
