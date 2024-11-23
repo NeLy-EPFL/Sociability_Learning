@@ -1,6 +1,6 @@
 #folder to import data from
 parentfolder: [
-   '/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/2p/test']
-   
+   '/path/to/folder/Functional_imaging_experiments']
 
+#Specific folders to analyze, e.g., lines: ["240604_MBON03-GC6s-tdTom"]. If empty it will use all the directories in the data folder.
 lines: []

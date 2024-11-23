@@ -164,7 +164,7 @@ def get_mean_image(video_file, camera_num, skip_existing=True, max_count = 6000)
     mean_frame_file = os.path.join(directory, output_name)
     if skip_existing and os.path.isfile(mean_frame_file):
         print(f"{mean_frame_file} exists loading image from file without recomputing.")
-        mean_frame = cv2.imread(mean_frame_file,0)
+        equ_img = cv2.imread(mean_frame_file,0)
     else:
         all_frames = []
         f = cv2.VideoCapture(video_file)
@@ -472,8 +472,10 @@ def get_treadmill_tracking(trial_dirs, camera_num=4, overwrite=False, check_resu
     config_files = []
     
     for trial_dir in tqdm(trial_dirs):
-        video_file = utils.find_file(trial_dir, f"camera_{camera_num}.mp4")
-        image_dir = os.path.dirname(video_file)
+        print(trial_dir)
+        image_dir = os.path.join(trial_dir, "images")
+        video_file = os.path.join(image_dir, f"camera_{camera_num}.mp4")
+        
         if not os.path.isfile(video_file):
             print("Could not find video file: ", video_file, "Will continue.")
             continue
@@ -571,7 +573,7 @@ def check_fictrac_results(trial_dirs, med_filt_size=5, sigma_gauss_size=10):
 
     to_fix = []
     for trial_dir in trial_dirs:
-        trial_image_dir = os.path.join(trial_dir, "behData", "images")
+        trial_image_dir = os.path.join(trial_dir, "images")
 
         possible_fictrac_dats = glob.glob(os.path.join(trial_image_dir, "camera*.dat"))
 
