@@ -6,10 +6,9 @@ from Sociability_Learning.utils_files import *
 from Sociability_Learning.utils_plots import plot_single_metric
 from Sociability_Learning.utils_sleap import load_sleap_tracking
 
-#control_path = "/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/screening-TNT-learning/Empty-split"
-control_path = "/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/grouped-control/gro-gro"
+control_path = "/path/to/folder/control/gro-gro"
 
-results_file = "results/paper/241018_screens.pkl"
+results_file = "control_experiments.pkl"
 save_results = False
 save_events = False
 adaptation_time = 120#s
