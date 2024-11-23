@@ -213,3 +213,63 @@ def write_frames(raw_imgs, grabbers, crops, to_skip):
                 grabbers[i].write(crop)
   
     return grabbers
+
+
+def draw_text(
+    im,
+    text,
+    x=0,
+    y=0,
+    anchor="lt",
+    font_size=24,
+    font="arial",
+    fill="white",
+    **kwargs,
+):
+    """
+    Draw text on an image.
+
+    Parameters
+    ----------
+    im : ndarray
+        Image to draw text on.
+    text : str
+        Text to draw.
+    x : int
+        x-coordinate of the text.
+    y : int
+        y-coordinate of the text.
+    anchor : str
+        Anchor point of the text.
+    font_size : int
+        Font size of the text.
+    font : str
+        Font of the text.
+    fill : str
+        Color of the text.
+    **kwargs
+        Additional keyword arguments for `ImageDraw.text`.
+
+    Returns
+    -------
+    result : ndarray
+        Image with the text drawn on it.
+    """
+    import numpy as np
+    from PIL import Image, ImageDraw, ImageFont
+    from matplotlib.font_manager import findfont, FontProperties
+
+    h, w = im.shape[:2]
+
+    if x < 0:
+        x = w + x
+    if y < 0:
+        y = h + y
+
+    font_path = findfont(FontProperties(family=[font]))
+    im = Image.fromarray(im)
+    draw = ImageDraw.Draw(im)
+    font = ImageFont.truetype(font_path, font_size)
+    draw.text((x, y), text, font=font, fill=fill, anchor=anchor, **kwargs)
+    result = np.asarray(im)
+    return result
