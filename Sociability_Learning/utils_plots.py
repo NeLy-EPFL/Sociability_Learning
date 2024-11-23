@@ -133,7 +133,7 @@ def get_order_by_median(data_df, limits={}, ascending=False):
         order_by_median = subset_df.sort_values(by='Prop', ascending=ascending)
         order.extend(order_by_median['Genotype'].to_list())
 
-    df_lines = pd.read_csv('all_lines_screening.csv', header=0)
+    df_lines = pd.read_csv('../data/names_all_lines.csv', header=0)
     brain_regions=[]
     for line in order:
         simple_name = line.split("_")[1]
@@ -143,7 +143,7 @@ def get_order_by_median(data_df, limits={}, ascending=False):
     return order, brain_regions
         
 
-def plot_single_metric(all_events, x, y, hue=None, use_bins=False, order=[], hue_order=None, horizontal=False, size=6, notch=False, split_flies=False, brain_regions=[], p_values={}, ci=[], save_fig=False,name_fig="", size_fig=(16,9)):
+def plot_single_metric(all_events, x, y, hue=None, use_bins=False, order=[], hue_order=None, horizontal=False, size=4, notch=False, split_flies=False, brain_regions=[], p_values={}, ci=[], save_fig=False,name_fig="", size_fig=(16,9), index_lims=[0.3, 1.05]):
     fig, ax = plt.subplots(figsize=size_fig)
     new_order = order
     color_regions = {"Control":(0,0,0),
@@ -311,11 +311,12 @@ def plot_single_metric(all_events, x, y, hue=None, use_bins=False, order=[], hue
                          fliersize=0,
                          order=new_order,
                          palette=palette,
-                         notch=notch)
+                         notch=notch,
+                         linewidth=0.5)
         #plt.yscale('log')
         for patch in ax.patches:
             r, g, b, a = patch.get_facecolor()
-            patch.set_facecolor((r, g, b, 0.4))
+            patch.set_facecolor((r, g, b, 0.8))
         ax = sns.stripplot(x=x,
                            y=y,
                            data=events,
@@ -346,18 +347,18 @@ def plot_single_metric(all_events, x, y, hue=None, use_bins=False, order=[], hue
         plt.xticks(fontsize=6, rotation=90)
         plt.yticks(fontsize=20)
     elif len(order) > 20 and horizontal:
-        plt.xticks(fontsize=20)
-        plt.yticks(fontsize=6)
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=4)
     else:
-        plt.xticks(fontsize=20)
-        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=6)
+        plt.yticks(fontsize=6)
     
     #plt.yscale('log')
     #plt.ylim([0,1.05])
     if horizontal:
-        plt.xlim([0.3,1.05])
+        plt.xlim(index_lims)
     else:
-        plt.ylim([0.3,1.05])
+        plt.ylim(index_lims)
 
     if save_fig:
         plt.savefig(name_fig, bbox_inches="tight", format="pdf")
