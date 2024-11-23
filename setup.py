@@ -13,5 +13,5 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/NeLy-EPFL/Sociability_Learning",
-    install_requires=["numpy", "scipy", "scikit-learn", "scikit-image", "scikit_posthocs", "opencv-python", "pandas", "tqdm","PyYAML","utils2p"]
+    install_requires=["numpy", "scipy", "scikit-learn", "scikit-image", "scikit_posthocs", "opencv-python", "opencv-contrib-python", "pandas", "tqdm","PyYAML","utils2p","pybaselines"]
 )
