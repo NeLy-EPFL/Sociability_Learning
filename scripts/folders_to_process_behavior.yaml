@@ -1,27 +1,11 @@
 #folder to import data from
 parentfolder: [
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/isolated-memory',
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/social-memory',
-   '/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/isolated-control',
-   '/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/grouped-control']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/learning',
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/learning-anosmic']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/isolated-olfaction',
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/social-olfaction']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/learning-dark']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/screening-TNT-reaction',
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/screening-TNT-learning']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/learning-inter-species-first']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/forgetting']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/learning-mesh']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/learning-24h']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/control-1dpe']
-   #'/mnt/upramdya_data/VLR/Optogenetics/Optobot/courtship',
-   #'/mnt/upramdya_data/VLR/Optogenetics/Optobot/control-males',
-   #'/mnt/upramdya_data/VLR/Optogenetics/Optobot/wingless-males-courtship']
-   #'/mnt/upramdya_files/LOBATO_RIOS_Victor/Experimental_data/Optogenetics/Optobot/learning-inter-species',
-   #'/mnt/upramdya_data/VLR/Optogenetics/Optobot/weevil']
-   #'/mnt/upramdya_data/VLR/Optogenetics/Optobot/learning-mesh']
-   
+   '/path/to/folder/control']
+   #'/path/to/folder/learning-24h'
+   #'/path/to/folder/beetle',
+   #'/path/to/folder/screening-TNT-reaction',
+   #'/path/to/folder/screening-TNT-learning',
 
-lines: ["iso-iso","gro-gro"]#"mel-mel-gro","gro-together","gro-conspecifics"]#"isolated", "grouped"]#"Empty-split","Empty","PR"]#"isolated", "grouped"]#"isolated-exp", "social-exp", "control", "11d-isolated", "11d-iso-18c"]#"mel-mel-gro","mel-sim-gro","sim-sim-gro","mel-gro-sim-gro"]#"mel-sim196","mel-mel","mel-mel-gro","mel-sim196-gro"]#"iso-iso", "gro-gro", "iso-gro"]# "PR","MB594B","MB607B","MB131B","MB185B","MB418B","MB463B","MB371B","DNc01","DNp13"]#"isolated-exp", "social-exp"]#"Empty", "PR", "wt-PR"]#,"MB594B","MB607B","MB131B","MB185B","MB418B","MB463B","MB371B","DNc01","DNp13"]#["mel-sim04", "mel-sim196","mel-sec07"]
+
+#Specific folders to analyze, e.g., lines: ["iso-iso", "MB371B"]. If empty it will use all the directories in the data folder.
+lines: []
