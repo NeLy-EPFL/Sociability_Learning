@@ -1,5 +1,8 @@
 # Sociability Learning
-Code to analyze the data from the paper "Conspecific sociability is regulated by associative learning circuits"
+Code to analyze the data from the paper 
+"Conspecific sociability is regulated by associative learning circuits"
+Victor Lobato-Rios, Thomas Ka Chung Lam, Pavan Ramdya
+2024
 
 ## Installation
 - Create a conda environment with python 3.7 and sleap version 1.2.8:
